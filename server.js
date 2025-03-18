@@ -93,7 +93,7 @@ app.post('/signup', async (c) => {
     }
 
     console.log('User signed up:', data.user);
-    return c.json({ user: data.user });
+    return c.json({user: data.user});
   }catch(error) {
     console.error('Unexpected error signing up:', error);
     return c.json({ error: 'User Saving Error' }, 500); // HTTP 500 Internal Server Error

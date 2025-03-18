@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { createClient } from '@supabase/supabase-js';
 import LoginPage from './components/LoginPage';
+import Layout from './components/Layout';
 import TaskPage from './components/TaskPage';
 import TaskEditPage from './components/TaskEditPage';
 import UserProfilePage from './components/UserProfilePage';
 import TaskCreatePage from './components/TaskCreatePage';
 import TopPage from './components/TopPage';
 import SignUpPage from './components/SignUpPage';
+import CheckEmailPage from './components/CheckEmailPage';
 
 // Supabase クライアントの作成
 const supabase = createClient(
@@ -105,8 +107,14 @@ function App() {
     return <div>Loading...</div>;
   }
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+  };
+
   return (
     <Router>
+      <Layout user={user} handleLogout={handleLogout} />
       <Routes>
         <Route path="/" element={<TopPage />} />
         <Route path="/login" element={user ? <Navigate to="/tasks" /> : <LoginPage />} />
@@ -115,6 +123,7 @@ function App() {
         <Route path="/tasks/edit/:taskId" element={user ? <TaskEditPage /> : <Navigate to="/login" />} />
         <Route path="/profile" element={user ? <UserProfilePage /> : <Navigate to="/login" />} />
         <Route path="/tasks/create" element={user ? <TaskCreatePage /> : <Navigate to="/login" />} />
+        <Route path="/check-email" element={<CheckEmailPage />}/>
       </Routes>
     </Router>
   );

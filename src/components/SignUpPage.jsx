@@ -30,6 +30,8 @@ function SignUpPage() {
     if (response.ok) {
       // サインアップ成功
       console.log('User signed up:', data.user);
+      
+      navigate('/check-email');
     } else {
       // サインアップ失敗
       setError(data.error || 'Something went wrong');

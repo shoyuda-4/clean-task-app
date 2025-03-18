@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState(''); 
   const navigate = useNavigate();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -32,7 +32,8 @@ function LoginPage() {
       console.log('User login:', data.user);
       localStorage.setItem('supabase_token', data.token);
       localStorage.setItem('supabase_refresh_token', data.refresh_token);
-      navigate('/tasks');
+      
+      window.location.reload();
     } else {
       // サインアップ失敗
       setError(data.error || 'Something went wrong');
