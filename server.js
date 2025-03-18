@@ -3,9 +3,9 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
-import dotenv from 'dotenv'; // dotenvをインポート
+import dotenv from 'dotenv';
 
-dotenv.config();  // .envファイルから環境変数を読み込む
+dotenv.config();
 
 const app = new Hono();
 
@@ -59,6 +59,71 @@ app.post('/api/data', async (c) => {
   return c.json({ received: body });
 });
 
+app.post('/signup', async (c) => {
+  const body = await c.req.json();
+  //メールアドレスのバリデーション
+  if (!body.email || !body.email.includes("@")) {
+    return c.json({ error: "Invalid email format" }, 400);
+  }
+
+  //パスワードのバリデーション（最低8文字）
+  if (!body.password || body.password.length < 8) {
+    return c.json({ error: "Password must be at least 8 characters long" }, 400);
+  }
+  try{
+    const {data, error} = await supabase.auth.signUp({
+      email: body.email,
+      password: body.password,
+    });
+    if (error) {
+      console.error('Error signing up:', error);
+      return c.json({ error: error.message }, 400); // HTTP 400 Bad Request を返す
+    }
+
+    const { user } = data;
+
+    const { dberror } = await supabase
+      .from('users')
+      .insert([
+        { id: user.id, email: user.email },
+      ]);
+    if (dberror) {
+      console.error('Error inserting user:', dberror);
+      return c.json({ error: 'Internal Server Error' }, 500); // HTTP 500 Internal Server Error
+    }
+
+    console.log('User signed up:', data.user);
+    return c.json({ user: data.user });
+  }catch(error) {
+    console.error('Unexpected error signing up:', error);
+    return c.json({ error: 'User Saving Error' }, 500); // HTTP 500 Internal Server Error
+  } 
+    
+});
+
+app.post('/signin', async (c) => {
+  const body = await c.req.json();
+  try {
+    const {data, error} = await supabase.auth.signInWithPassword({
+      email: body.email,
+      password: body.password,
+    });
+    if (error || !data.user) {
+      console.error('Error signing in:', error);
+      return c.json({ error: error.message }, 400); // HTTP 400 Bad Request を返す
+    }
+    console.log('User signed in:', data.user);
+    return c.json({
+      user: data.user,
+      token: data.session.access_token,
+      refresh_token: data.session.refresh_token // トークンを返す
+    });
+  }
+  catch(error) {
+      console.error('Unexpected error signing in:', error);
+      return c.json({ error: 'Internal Server Error' }, 500); // HTTP 500 Internal Server Error
+  }
+});
 
 
 serve({
