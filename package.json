@@ -1,5 +1,5 @@
 {
-  "name": "baseball-score-app",
+  "name": "clean-app",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -13,9 +13,11 @@
   "dependencies": {
     "@hono/node-server": "^1.11.1",
     "@supabase/supabase-js": "^2.49.1",
+    "dotenv": "^16.4.7",
     "hono": "^4.3.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-router-dom": "^7.3.0",
     "resend": "^4.1.2"
   },
   "devDependencies": {
