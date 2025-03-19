@@ -125,6 +125,43 @@ app.post('/signin', async (c) => {
   }
 });
 
+app.post('/tasks/create', async (c) => {  
+    const body = await c.req.json();
+
+    if(!body.task_name || !body.last_cleaned || !body.cleaning_interval) {
+      return c.json({ error: 'Missing required fields' }, 400);
+    }
+    const lastcleanDate = new Date(body.last_cleaned);
+    lastcleanDate.setDate(lastcleanDate.getDate() + Number(body.cleaning_interval));
+    const nextcleanDate = lastcleanDate.toISOString().split('T')[0];
+    try {
+      const { data, error } = await supabase
+        .from('tasks')
+        .insert([
+          {
+            task_name: body.task_name,
+            last_cleaned: body.last_cleaned,
+            next_clean: nextcleanDate,
+            cleaning_interval: body.cleaning_interval,
+            user_id: body.user_id,
+          },
+        ])
+        .select();
+      if (error) {
+        console.error('Error inserting task:', error);
+        return c.json({ error: 'Internal Server Error' }, 500);
+      }
+
+      if (!data || data.length === 0) {
+        return c.json({ error: 'No data returned from insert' }, 500);
+      }
+      console.log('Task created:', data);
+      return c.json({ task: data[0] });
+    } catch (error) {
+      console.error('Unexpected error creating task:', error);
+      return c.json({ error: 'Internal Server Error' }, 500);
+    }
+});
 
 serve({
     fetch: app.fetch,

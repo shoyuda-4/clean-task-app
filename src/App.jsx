@@ -122,7 +122,7 @@ function App() {
         <Route path="/tasks" element={user ? <TaskPage /> : <Navigate to="/login" />} />
         <Route path="/tasks/edit/:taskId" element={user ? <TaskEditPage /> : <Navigate to="/login" />} />
         <Route path="/profile" element={user ? <UserProfilePage /> : <Navigate to="/login" />} />
-        <Route path="/tasks/create" element={user ? <TaskCreatePage /> : <Navigate to="/login" />} />
+        <Route path="/tasks/create" element={user ? <TaskCreatePage user={user} /> : <Navigate to="/login" />} />
         <Route path="/check-email" element={<CheckEmailPage />}/>
       </Routes>
     </Router>

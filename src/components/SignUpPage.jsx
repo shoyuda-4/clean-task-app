@@ -14,7 +14,7 @@ function SignUpPage() {
     setError('');
 
     // サインアップリクエストを送る
-    const response = await fetch('http://localhost:3000/signup', {  // サーバーのエンドポイント（例: '/signup'）
+    const response = await fetch('http://localhost:3000/signup', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
