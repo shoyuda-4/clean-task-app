@@ -35,7 +35,9 @@ function TaskPage() {
           </li>
         ))}
       </ul>
+      <button onClick={() => navigate('/tasks/create')}>新規作成</button>
     </div>
+      
   );
 }
 

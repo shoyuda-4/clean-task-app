@@ -247,6 +247,63 @@ app.put('/tasks/:taskId', async (c) => {
   }
 });
 
+app.delete('/tasks/:taskId', async (c) => {
+  const taskId = c.req.param('taskId');
+  try {
+    const { data, error } = await supabase
+      .from('tasks')
+      .delete()
+      .eq('id', taskId)
+      .select();
+    if (error) {
+      console.error('Error deleting task:', error);
+      return c.json({ error: 'Internal Server Error' }, 500);
+    }
+    if (!data || data.length === 0) {
+      return c.json({ error: 'Task not found' }, 404);
+    }
+    console.log('Task deleted:', data);
+    return c.json(data[0]);
+  } catch (error) {
+    console.error('Unexpected error deleting task:', error);
+    return c.json({ error: 'Internal Server Error' }, 500);
+  }
+});
+
+app.get('/:userId', async (c) => {
+  const userId = c.req.param('userId');
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', userId);
+    if (error) {
+      console.error('Error fetching user:', error);
+      return c.json({ error: 'Internal Server Error' }, 500);
+    }
+    if (!data || data.length === 0) {
+      return c.json({ error: 'User not found' }, 404);
+    }
+    return c.json(data[0]);
+  } catch (error) {
+    console.error('Unexpected error fetching user:', error);
+    return c.json({ error: 'Internal Server Error' }, 500);
+  }
+});
+
+app.delete('/:userId', async (c) => {
+  const userId = c.req.param('userId');
+  const { error } = await supabase.rpc('delete_user_and_tasks', { uid: userId });
+
+  if (error) {
+    console.error('Error deleting user:', error);
+    return c.json({ error: 'Failed to delete user' }, 500);
+  } else {
+    console.log('User deleted successfully');
+    return c.json({ message: 'User deleted successfully' }, 200);
+  }
+});
+
 serve({
     fetch: app.fetch,
     port: 3000,

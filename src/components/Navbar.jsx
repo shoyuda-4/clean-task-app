@@ -5,8 +5,12 @@ const Navbar = ({ user, handleLogout }) => {
   return (
     <nav style={{ display: "flex", justifyContent: "space-between", padding: "10px", background: "#eee" }}>
       <div>
-        <Link to="/">Home</Link> | 
-        <Link to="/profile">Profile</Link> | 
+      {user ? (
+          <Link to={`/${user.id}`}>Profile</Link>
+        ) : (
+          <span>Profile</span>  // ログイン前はリンクを表示しない
+        )}
+        {' | '}
         <Link to="/tasks">Tasks</Link>
       </div>
       <div>

@@ -52,6 +52,23 @@ function TaskEditPage() {
 
   };
 
+  const handleDelete = async () => {
+    console.log('Deleting task:', taskId);
+    // タスク削除後、タスクページに戻る
+    const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
+      method: 'DELETE',
+    });
+    const data = await response.json();
+    console.log('Task deleted:', data);
+    if(response.ok){
+      console.log('Task deleted:', data);
+      navigate('/tasks');
+    }
+    else {
+      console.error('Error deleting task:', data.error);
+    }
+  }
+
   return (
     <div>
       <h1>Edit Task</h1>
@@ -85,6 +102,7 @@ function TaskEditPage() {
         />
       </div>
       <button onClick={handleSave}>Save</button>
+      <button onClick={handleDelete}>Delete</button>
     </div>
   );
 }

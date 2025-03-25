@@ -112,20 +112,41 @@ function App() {
     setUser(null);
   };
 
+  const handleDeleteUser = async () => {
+    const response = await fetch(`http://localhost:3000/${user.id}`, {
+      method: 'DELETE',
+    });
+    const data = await response.json();
+    if (response.ok) {
+      console.log('User deleted:', data);
+      localStorage.removeItem('supabase_token');
+      localStorage.removeItem('supabase_refresh_token');
+      await supabase.auth.signOut();
+      setUser(null);
+    } else {
+      console.error('Error deleting user:', data);
+    }
+  };
+
   return (
-    <Router>
-      <Layout user={user} handleLogout={handleLogout} />
-      <Routes>
-        <Route path="/" element={<TopPage />} />
-        <Route path="/login" element={user ? <Navigate to="/tasks" /> : <LoginPage />} />
-        <Route path="/signup" element={user ? <Navigate to="/tasks" /> : <SignUpPage />} />
-        <Route path="/tasks" element={user ? <TaskPage /> : <Navigate to="/login" />} />
-        <Route path="/tasks/edit/:taskId" element={user ? <TaskEditPage /> : <Navigate to="/login" />} />
-        <Route path="/profile" element={user ? <UserProfilePage /> : <Navigate to="/login" />} />
-        <Route path="/tasks/create" element={user ? <TaskCreatePage user={user} /> : <Navigate to="/login" />} />
-        <Route path="/check-email" element={<CheckEmailPage />}/>
-      </Routes>
-    </Router>
+    <>
+      <header>
+        <h1>Home Cleaning App</h1>
+      </header>
+      <Router>
+        <Layout user={user} handleLogout={handleLogout} />
+        <Routes>
+          <Route path="/" element={<TopPage />} />
+          <Route path="/login" element={user ? <Navigate to="/tasks" /> : <LoginPage />} />
+          <Route path="/signup" element={user ? <Navigate to="/tasks" /> : <SignUpPage />} />
+          <Route path="/tasks" element={user ? <TaskPage /> : <Navigate to="/" />} />
+          <Route path="/tasks/edit/:taskId" element={user ? <TaskEditPage /> : <Navigate to="/" />} />
+          <Route path="/:userId" element={user ? <UserProfilePage handleDeleteUser={handleDeleteUser} /> : <Navigate to="/" />} />
+          <Route path="/tasks/create" element={user ? <TaskCreatePage user={user} /> : <Navigate to="/" />} />
+          <Route path="/check-email" element={<CheckEmailPage />}/>
+        </Routes>
+      </Router>
+    </>
   );
 }
 

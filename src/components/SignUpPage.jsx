@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 function SignUpPage() {
   const [email, setEmail] = useState('');
@@ -67,7 +67,9 @@ function SignUpPage() {
           {loading ? 'Signing up...' : 'Sign Up'}
         </button>
       </form>
+      <Link to="/login">ログインページへ</Link>
     </div>
+    
   );
 }
 
