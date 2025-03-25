@@ -9,8 +9,6 @@ function TaskCreatePage({user}) {
   const currentDate = new Date().toISOString().split('T')[0];
 
   const handleCreateTask = async (e) => {
-    // 実際のデータベースにタスクを追加する処理を行います。
-    // 仮にコンソールに出力しています。
     e.preventDefault();
   
     const response = await fetch('http://localhost:3000/tasks/create', { 

@@ -70,7 +70,22 @@ app.post('/signup', async (c) => {
   if (!body.password || body.password.length < 8) {
     return c.json({ error: "Password must be at least 8 characters long" }, 400);
   }
+
+
+
   try{
+    const { data: checkData, checkerror } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', body.email);
+    if (checkerror) {
+      console.error('Error checking user:', checkerror);
+      return c.json({ error: 'Internal Server Error' }, 500); // HTTP 500 Internal Server Error
+    }
+    if (checkData.length > 0) {
+      // ユーザーが既に存在している
+      return c.json({ error: 'このメールアドレスは既に使われています' }, 400);
+    }
     const {data, error} = await supabase.auth.signUp({
       email: body.email,
       password: body.password,
@@ -161,6 +176,75 @@ app.post('/tasks/create', async (c) => {
       console.error('Unexpected error creating task:', error);
       return c.json({ error: 'Internal Server Error' }, 500);
     }
+});
+
+app.get('/tasks', async (c) => {
+  try {
+    const data = await getTasks();
+    return c.json(data);
+  } catch (error) {
+    console.error('Error fetching tasks:', error);
+    return c.json({ error: 'Internal Server Error' }, 500);
+  }
+});
+
+app.get('/tasks/:taskId', async (c) => {
+  const taskId = c.req.param('taskId');
+  try {
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('id', taskId);
+    if (error) {
+      console.error('Error fetching task:', error);
+      return c.json({ error: 'Internal Server Error' }, 500);
+    }
+    if (!data || data.length === 0) {
+      return c.json({ error: 'Task not found' }, 404);
+    }
+    return c.json(data[0]);
+  } catch (error) {
+    console.error('Unexpected error fetching task:', error);
+    return c.json({ error: 'Internal Server Error' }, 500);
+  }
+});
+
+app.put('/tasks/:taskId', async (c) => {
+  const taskId = c.req.param('taskId');
+  const body = await c.req.json();
+  if (!body.task_name || !body.cleaning_interval || !body.last_cleaned) {
+    return c.json({ error: 'Missing required fields' }, 400);
+  }
+  const lastcleanDate = new Date(body.last_cleaned);
+  lastcleanDate.setDate(lastcleanDate.getDate() + Number(body.cleaning_interval));
+  const nextcleanDate = lastcleanDate.toISOString().split('T')[0];
+  const currentDate = new Date();
+  console.log(body.last_cleaned);
+  try {
+    const { data, error } = await supabase
+      .from('tasks')
+      .update({
+        task_name: body.task_name,
+        cleaning_interval: body.cleaning_interval,
+        last_cleaned: body.last_cleaned,
+        next_clean: nextcleanDate,
+        updated_at: currentDate,
+      })
+      .eq('id', taskId)
+      .select();
+    if (error) {
+      console.error('Error updating task:', error);
+      return c.json({ error: 'Internal Server Error' }, 500);
+    }
+    if (!data || data.length === 0) {
+      return c.json({ error: 'Task not found' }, 404);
+    }
+    console.log('Task updated:', data);
+    return c.json(data[0]);
+  } catch (error) {
+    console.error('Unexpected error updating task:', error);
+    return c.json({ error: 'Internal Server Error' }, 500);
+  }
 });
 
 serve({

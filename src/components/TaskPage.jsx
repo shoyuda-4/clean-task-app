@@ -6,25 +6,18 @@ function TaskPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // タスクデータを取得（仮のデータ）
-    const fetchedTasks = [
-      { id: 1, taskName: '掃除機かけ', status: '未完了' },
-      { id: 2, taskName: '皿洗い', status: '完了' },
-    ];
-    setTasks(fetchedTasks);
+    async function fetchTasks() {
+      const response = await fetch('http://localhost:3000/tasks');
+      const data = await response.json();
+      const modifiedData = data.map(task => ({
+        ...task,
+        last_cleaned: task.last_cleaned.split('T')[0],
+        next_clean: task.next_clean.split('T')[0], 
+      }));
+      setTasks(modifiedData);
+    }
+    fetchTasks();
   }, []);
-
-  const handleComplete = (taskId) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === taskId ? { ...task, status: '完了' } : task
-      )
-    );
-  };
-
-  const handleDelete = (taskId) => {
-    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
-  };
 
   return (
     <div>
@@ -32,9 +25,10 @@ function TaskPage() {
       <ul>
         {tasks.map((task) => (
           <li key={task.id}>
-            {task.taskName} - {task.status}
-            <button onClick={() => handleComplete(task.id)}>Complete</button>
-            <button onClick={() => handleDelete(task.id)}>Delete</button>
+            {task.task_name} - {task.last_cleaned} - {task.next_clean}
+            <br />
+            Cleaning Interval: {task.cleaning_interval} days
+            <br />
             <button onClick={() => navigate(`/tasks/edit/${task.id}`)}>
               Edit
             </button>

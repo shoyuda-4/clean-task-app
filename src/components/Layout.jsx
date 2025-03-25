@@ -7,7 +7,6 @@ const Layout = ({ user, handleLogout }) => {
 
   return (
     <div>
-      {/* 現在の URL が "/"（TopPage）以外のときだけ Navbar を表示 */}
       {location.pathname !== "/login" && location.pathname !== "/" && location.pathname !== "/signup" && location.pathname !== "/check-email" && <Navbar user={user} handleLogout={handleLogout} />}
     </div>
   );
